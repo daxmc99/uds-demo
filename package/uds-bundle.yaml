@@ -1,0 +1,47 @@
+kind: UDSBundle
+metadata:
+  name: podinfo-bundle
+  description: Bundle with k3d, Zarf init, UDS Core, and podinfo.
+  version: 0.0.1
+
+packages:
+  - name: uds-k3d
+    repository: ghcr.io/defenseunicorns/packages/uds-k3d
+    ref: 0.8.0
+    overrides:
+      uds-dev-stack:
+        minio:
+          variables:
+            - name: buckets
+              description: "Set Minio Buckets"
+              path: buckets
+            - name: svcaccts
+              description: "Minio Service Accounts"
+              path: svcaccts
+            - name: users
+              description: "Minio Users"
+              path: users
+            - name: policies
+              description: "Minio policies"
+              path: policies
+
+  - name: init
+    repository: oci://ghcr.io/zarf-dev/packages/init
+    ref: v0.42.2
+
+  - name: core
+    repository: oci://ghcr.io/defenseunicorns/packages/uds/core
+    ref: 0.30.0-upstream
+    # Set overrides for Keycloak SSO tutorial
+    overrides:
+      keycloak:
+        keycloak:
+          variables:
+            - name: INSECURE_ADMIN_PASSWORD_GENERATION
+              description: "Generate an insecure admin password for dev/test"
+              path: insecureAdminPasswordGeneration.enabled
+              default: "true"
+
+  - name: podinfo
+    path: ./
+    ref: 0.0.1
